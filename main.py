@@ -4,6 +4,7 @@ from pygame.locals import *
 import sys
 import time
 import mouse_events
+import math
 
 pygame.init()  # starts the pygame environment
 #instantiate screen object
@@ -23,6 +24,62 @@ class Game:
     """
     def __init__(self):
         self.gameMode = 'splash'
+
+class Ball(pygame.sprite.Sprite):
+    """
+    Attributes: directionX, directionY, initialAngle, currentAngle, speed, image
+    Methods:    update(), collide()
+    """
+    def __init__(self):
+        super().__init__()
+        self.image = assets.spritesGFX['ball']
+        self.rect = self.image.get_rect()
+        self.rect.center = (150,500)
+        self.angle = math.radians(180+95)
+        self.speed = 4
+        self.dx = math.cos(self.angle) * self.speed
+        self.dy = math.sin(self.angle) * self.speed
+        self.positionx = self.rect.center[0]
+        self.positiony = self.rect.center[1]
+        #self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        self.dx = math.cos(self.angle) * self.speed
+        self.dy = math.sin(self.angle) * self.speed
+        self.positionx += self.dx
+        self.positiony += self.dy
+        self.rect.center = (self.positionx, self.positiony)
+        if self.speed > 0:
+            self.speed = self.speed - 0.025
+        else:
+            self.speed = 0
+        #print(self.dx, self.dy)
+        #print(self.positionx,self.positiony)
+
+    def bumperhit(self,bumper):
+        alpha = math.degrees(self.angle) - bumper.angle
+        bounceangle = 180 - 2*alpha + math.degrees(self.angle)
+        self.angle = math.radians(bounceangle)
+        self.dx = math.cos(self.angle) * self.speed
+        self.dy = math.sin(self.angle) * self.speed
+
+
+class Bumper(pygame.sprite.Sprite):
+    """
+    fadfda
+    """
+    def __init__(self,center_pixel):
+        super().__init__()
+        self.image = assets.spritesGFX['bumper45']
+        self.angle = 45
+        print(self.angle)
+        #self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.center = center_pixel
+
+
+        #self.shape = pygame.draw.line(screen, (122,122,122), self.start, self.end, width=4)
+
 
 
 def renderMap(mapFile, row, column):
@@ -52,6 +109,12 @@ def splashScreen():
 
 def main():
     game = Game()
+    gameBall = Ball()
+    bumper1 = Bumper((150,300))
+    ball_group = pygame.sprite.Group()
+    ball_group.add(gameBall)                            # add game ball to sprite group ball_group (it's annoying but the only way to draw sprites in pygame is by groups)
+    bumper_group = pygame.sprite.Group()
+    bumper_group.add(bumper1)
     mouseEvents = mouse_events.MouseEvents(screen)
     splashScreen()
     while True:
@@ -74,10 +137,18 @@ def main():
         """
         RENDERING MAP, SPRITES    
         """
-        time.sleep(1/60)                                #limit event polling to 60 times per second
-        renderMap(mapFile=currentMap, row=0, column=0)  #currentMap will change as we advance in the game
-        pygame.display.flip()                           # so it doesn't make sense to hardcode it
-                                                        # the var currentMap will be updated
+        time.sleep(1/60)
+        #renderMap(mapFile=currentMap, row=0, column=0)
+        #splashScreen()
+        screen.fill(color=(0,0,0))
+        gameBall.update()
+        ball_group.draw(screen)
+        bumper_group.draw(screen)
+        pygame.display.flip()
+        bumper_hits = pygame.sprite.spritecollide(gameBall,bumper_group, False, pygame.sprite.collide_mask)
+        if bumper_hits:
+            gameBall.bumperhit(bumper1)
+
 
 
 main()

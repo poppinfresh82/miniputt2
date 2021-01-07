@@ -8,7 +8,10 @@ mapsGFX = {
 
 spritesGFX = {
      'd0': pygame.image.load('./sprites/d_0.png'),
-     'd1': pygame.image.load('./sprites/d_1.png')
+     'd1': pygame.image.load('./sprites/d_1.png'),
+     'ball': pygame.image.load('./sprites/ball.png'),
+     'bumper45': pygame.image.load('./sprites/bumper_45_r.png')
+
 }
 
 itemsGFX = {

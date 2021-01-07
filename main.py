@@ -63,7 +63,7 @@ class Ball(pygame.sprite.Sprite):
         self.dx = math.cos(self.angle) * self.speed
         self.dy = math.sin(self.angle) * self.speed
 
-
+#blalal
 class Bumper(pygame.sprite.Sprite):
     """
     fadfda
